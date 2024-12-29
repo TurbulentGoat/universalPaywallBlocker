@@ -17,7 +17,7 @@ A userscript designed to hide the paywall prompt and enable scrolling on any [WA
    - **Greasemonkey:** Available for [Firefox](https://addons.mozilla.org/en-US/firefox/addon/greasemonkey/).
 
 2. **Install the Userscript:**
-   - Navigate to the [WA_Today_Paywall_Buster.user.js](https://github.com/TurbulentGoat/waTodayPaywallBlocker) file in this repository.
+   - Navigate to the [waTodayPaywallBlocker.user.js](https://github.com/TurbulentGoat/waTodayPaywallBlocker) file in this repository.
    - Click on the **"Raw"** button to view the raw script.
    - Your userscript manager should prompt you to install the script. Follow the on-screen instructions.
 
