@@ -17,7 +17,7 @@
      * Add any additional URLs or patterns here.
      */
     const blockedUrls = [
-        //'https://loader.mantis-intelligence.com/nine/loader.js',
+        'https://loader.mantis-intelligence.com/nine/loader.js',
         'https://c2-au.piano.io/xbuilder/experience/execute?aid=lG1OZt97pa',
         'https://c2-au.piano.io/xbuilder/experience/execute?aid=lrJ8j3qepa',
         'https://loader.mantis-intelligence.com/clientsidetag/latest/nine/mantis.min.js'
