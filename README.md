@@ -1,8 +1,11 @@
-# WA Today - Paywall Blocker
+#UNIVERSAL Paywall Blocker
+(No longer just waToday!!)
 
-Firstly, They seem to change how they show the paywall every so often so it might just not work one day.
+Firstly, These paywalls seem to change how they generate them, and what they hide behind then, quite often - so it might just not work one day.
 
-A userscript designed to hide the paywall prompt and enable scrolling on any [WA Today](https://www.watoday.com.au/) article.
+I've been made aware of websites you can go to, one example is [12ft](https://12ft.io) and to be fair, it works really well. My tool, though, doesn't fully disable Javascript like theirs. Neither is bad, just as I said, no single tool does all jobs. You need to decide what is best for what you need at that time. (Just to be VERY clear, I have not looked at their code, I do not know how they do what they do, so if there are ANY similarities between the two in how they are written it is purely coincidental!)
+
+A userscript designed to hide the paywall prompt and enable scrolling on **most** websites. It will not work for all, no tool can. I'm just one guy, not even a pro so if you have any tips/advice/changes...please let me know!
 
 ## Features
 
@@ -23,7 +26,7 @@ A userscript designed to hide the paywall prompt and enable scrolling on any [WA
 
 ## Usage
 
-- **Automatic Activation:** The script runs automatically when you visit [WA Today](https://www.watoday.com.au/).
+- **Automatic Activation:** The script runs automatically when you visit a site that you know uses a paywall, but it is not showing. Test on [WA Today](https://www.watoday.com.au/).
 - **Manual Activation:** If needed, click on the userscript manager icon and ensure the script is enabled.
 
 ## Customization
