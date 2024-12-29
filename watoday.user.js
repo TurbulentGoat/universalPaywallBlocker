@@ -1,16 +1,27 @@
 // ==UserScript==
-// @name         WA Today Paywall Buster & Network Blocker
-// @namespace
-// @version      1
-// @description  Hides the paywall prompt, enables scrolling, and blocks specific network requests on WA Today
+// @name         Universal Paywall Buster & Network Blocker
+// @namespace    http://tampermonkey.net/
+// @version      2.0
+// @description  Hides paywall prompts, enables scrolling, and blocks specific network requests across all websites
 // @author       TurbulentGoat
-// @match        *://www.watoday.com.au/*
+// @match        *://*/*
 // @grant        GM_addStyle
 // @run-at       document-end
 // ==/UserScript==
 
 (function() {
     'use strict';
+
+    /**
+     * List of URLs or URL patterns to block.
+     * Add any additional URLs or patterns here.
+     */
+    const blockedUrls = [
+        //'https://loader.mantis-intelligence.com/nine/loader.js',
+        'https://c2-au.piano.io/xbuilder/experience/execute?aid=lG1OZt97pa',
+        'https://c2-au.piano.io/xbuilder/experience/execute?aid=lrJ8j3qepa',
+        'https://loader.mantis-intelligence.com/clientsidetag/latest/nine/mantis.min.js'
+    ];
 
     /**
      * Adds custom CSS styles to the page.
@@ -22,130 +33,109 @@
                 overflow: auto !important;
             }
         `);
-        console.log('[WA Today Paywall Buster] Custom styles applied: body overflow set to auto.');
+        console.log('[Paywall Buster & Network Blocker] Custom styles applied: body overflow set to auto.');
     }
 
     /**
-     * Hides the paywall prompt by targeting its ID.
-     * @returns {boolean} - Returns true if the paywall was found and hidden, else false.
+     * Hides paywall prompts by targeting common paywall container selectors.
+     * Adds more selectors as needed to cover different websites.
+     * @returns {boolean} - Returns true if any paywall elements were found and hidden, else false.
      */
-    function hidePaywall() {
-        const paywall = document.getElementById('paywall-prompt-wrapper-piano-id');
-        if (paywall) {
-            paywall.style.display = 'none';
-            console.log('[WA Today Paywall Buster] Paywall prompt hidden.');
-            return true;
-        }
-        return false;
+    function hidePaywalls() {
+        const paywallSelectors = [
+            '#paywall-prompt-wrapper-piano-id',
+            '.paywall-overlay',
+            '#paywall',
+            '.subscription-popup',
+            '.access-restricted',
+            '.js-paywall',
+            '.paywall-container',
+            '.paywall-modal',
+            '#paywall-modal',
+            '.paywall-wrapper',
+            '.paywall-blocker',
+            '.block-paywall'
+        ];
+
+        let hidden = false;
+
+        paywallSelectors.forEach(selector => {
+            const paywalls = document.querySelectorAll(selector);
+            paywalls.forEach(paywall => {
+                paywall.style.display = 'none';
+                console.log(`[Paywall Buster & Network Blocker] Paywall element hidden: ${selector}`);
+                hidden = true;
+            });
+        });
+
+        return hidden;
     }
 
     /**
      * Removes classes and inline styles that prevent scrolling.
-     * Specifically targets elements with classes 'tp-scroll-prevented' and 'tp-body-scroll-prevented'.
+     * Specifically targets elements with classes containing 'scroll-prevented'.
      * @returns {boolean} - Returns true if any scroll-preventing elements were modified, else false.
      */
     function enableScrolling() {
-        const scrollPreventedElements = document.querySelectorAll('.tp-scroll-prevented, .tp-body-scroll-prevented');
+        const scrollPreventedElements = document.querySelectorAll('[class*="scroll-prevented"]');
+
         let modified = false;
 
         scrollPreventedElements.forEach(element => {
             // Remove classes that prevent scrolling
-            element.classList.remove('tp-scroll-prevented', 'tp-body-scroll-prevented');
+            element.classList.forEach(cls => {
+                if (cls.includes('scroll-prevented')) {
+                    element.classList.remove(cls);
+                    console.log(`[Paywall Buster & Network Blocker] Removed scroll-preventing class: ${cls}`);
+                    modified = true;
+                }
+            });
 
             // Remove inline styles that prevent scrolling
-            element.style.height = '';
-            element.style.overflow = '';
-            element.style.touchAction = '';
+            if (element.style.overflow === 'hidden' || element.style.overflow === 'auto') {
+                element.style.overflow = '';
+                console.log('[Paywall Buster & Network Blocker] Removed scroll-preventing overflow style.');
+                modified = true;
+            }
 
-            modified = true;
-            console.log('[WA Today Paywall Buster] Scroll-preventing classes and styles removed from an element.');
+            if (element.style.height) {
+                element.style.height = '';
+                console.log('[Paywall Buster & Network Blocker] Removed scroll-preventing height style.');
+                modified = true;
+            }
+
+            if (element.style.touchAction) {
+                element.style.touchAction = '';
+                console.log('[Paywall Buster & Network Blocker] Removed scroll-preventing touchAction style.');
+                modified = true;
+            }
         });
 
         if (modified) {
-            console.log('[WA Today Paywall Buster] Scrolling has been enabled.');
+            console.log('[Paywall Buster & Network Blocker] Scrolling has been enabled.');
             return true;
         }
         return false;
     }
 
     /**
-     * Applies all modifications: adds custom styles, hides paywall, and enables scrolling.
-     * @returns {boolean} - Returns true if any modifications were applied, else false.
+     * Blocks specified network requests by overriding fetch and XMLHttpRequest.
      */
-    function applyModifications() {
-        addCustomStyles();
-        const paywallHidden = hidePaywall();
-        const scrollingEnabled = enableScrolling();
-        return paywallHidden || scrollingEnabled;
-    }
-
-    /**
-     * Sets up a MutationObserver to monitor the DOM for changes.
-     * Applies modifications when new nodes are added that match the targets.
-     */
-    function setupMutationObserver() {
-        const observer = new MutationObserver((mutations, obs) => {
-            let modificationApplied = false;
-            mutations.forEach(mutation => {
-                mutation.addedNodes.forEach(node => {
-                    if (node.nodeType === Node.ELEMENT_NODE) {
-                        // Check if the added node is the paywall
-                        if (node.id === 'paywall-prompt-wrapper-piano-id') {
-                            node.style.display = 'none';
-                            console.log('[WA Today Paywall Buster] Paywall prompt hidden via MutationObserver.');
-                            modificationApplied = true;
-                        }
-
-                        // Check if the added node has scroll-preventing classes
-                        if (node.classList.contains('tp-scroll-prevented') || node.classList.contains('tp-body-scroll-prevented')) {
-                            node.classList.remove('tp-scroll-prevented', 'tp-body-scroll-prevented');
-                            node.style.height = '';
-                            node.style.overflow = '';
-                            node.style.touchAction = '';
-                            console.log('[WA Today Paywall Buster] Scroll-preventing classes and styles removed via MutationObserver.');
-                            modificationApplied = true;
-                        }
-                    }
-                });
-            });
-
-            if (modificationApplied) {
-                console.log('[WA Today Paywall Buster] Modifications applied via MutationObserver. Disconnecting observer.');
-                obs.disconnect(); // Stop observing after modifications are applied
-            }
-        });
-
-        observer.observe(document.body, {
-            childList: true,
-            subtree: true
-        });
-
-        console.log('[WA Today Paywall Buster] MutationObserver set up to monitor DOM changes.');
-    }
-
-    /**
-     * Overrides the native fetch function to intercept and block specific network requests.
-     */
-    function overrideFetch() {
+    function blockNetworkRequests() {
+        // Override fetch
         const originalFetch = window.fetch;
         window.fetch = async function(...args) {
             const url = args[0];
-            if (typeof url === 'string' && url.includes('https://c2-au.piano.io/xbuilder/experience/execute?aid=lG1OZt97pa')) {
-                console.warn('[WA Today Paywall Buster] Blocking fetch request to:', url);
-                // Return a dummy response or reject the promise to block the request
+            if (typeof url === 'string' && blockedUrls.some(blockedUrl => url.includes(blockedUrl))) {
+                console.warn('[Paywall Buster & Network Blocker] Blocking fetch request to:', url);
+                // Return a dummy response to block the request
                 return new Response(null, { status: 200, statusText: 'OK' });
-                // Alternatively, reject the fetch
-                // return Promise.reject(new Error('Blocked by WA Today Paywall Buster'));
             }
             return originalFetch.apply(this, args);
         };
-        console.log('[WA Today Paywall Buster] fetch overridden to block specific requests.');
-    }
+        console.log('[Paywall Buster & Network Blocker] fetch overridden to block specific requests.');
 
-    /**
-     * Overrides the native XMLHttpRequest to intercept and block specific network requests.
-     */
-    function overrideXMLHttpRequest() {
+        // Override XMLHttpRequest
         const originalOpen = XMLHttpRequest.prototype.open;
         const originalSend = XMLHttpRequest.prototype.send;
 
@@ -155,8 +145,8 @@
         };
 
         XMLHttpRequest.prototype.send = function(body) {
-            if (this._url && this._url.includes('https://c2-au.piano.io/xbuilder/experience/execute?aid=lG1OZt97pa')) {
-                console.warn('[WA Today Paywall Buster] Blocking XMLHttpRequest to:', this._url);
+            if (this._url && blockedUrls.some(blockedUrl => this._url.includes(blockedUrl))) {
+                console.warn('[Paywall Buster & Network Blocker] Blocking XMLHttpRequest to:', this._url);
                 // Simulate a successful response without executing the request
                 this.addEventListener('readystatechange', function() {
                     if (this.readyState === 4) {
@@ -184,35 +174,74 @@
             }
             return originalSend.apply(this, arguments);
         };
-
-        console.log('[WA Today Paywall Buster] XMLHttpRequest overridden to block specific requests.');
+        console.log('[Paywall Buster & Network Blocker] XMLHttpRequest overridden to block specific requests.');
     }
 
     /**
-     * Injects the network interceptors into the page's context.
-     * This ensures that the overrides affect all scripts on the page.
+     * Removes <script> tags that match blocked URLs.
      */
-    function injectNetworkInterceptors() {
-        overrideFetch();
-        overrideXMLHttpRequest();
+    function removeBlockedScripts() {
+        const scripts = document.querySelectorAll('script[src]');
+        scripts.forEach(script => {
+            blockedUrls.forEach(blockedUrl => {
+                if (script.src.includes(blockedUrl)) {
+                    script.parentNode.removeChild(script);
+                    console.log(`[Paywall Buster & Network Blocker] Removed script tag: ${script.src}`);
+                }
+            });
+        });
     }
 
     /**
-     * Initializes the userscript by applying modifications, injecting network interceptors,
-     * and setting up the observer if needed.
+     * Sets up a MutationObserver to monitor the DOM for changes.
+     * Applies modifications when new nodes are added that match the targets.
+     */
+    function setupMutationObserver() {
+        const observer = new MutationObserver((mutations) => {
+            let modificationApplied = false;
+            mutations.forEach(mutation => {
+                mutation.addedNodes.forEach(node => {
+                    if (node.nodeType === Node.ELEMENT_NODE) {
+                        // Hide paywall elements
+                        if (hidePaywalls()) {
+                            modificationApplied = true;
+                        }
+
+                        // Enable scrolling on dynamically added elements
+                        if (enableScrolling()) {
+                            modificationApplied = true;
+                        }
+
+                        // Remove blocked scripts
+                        removeBlockedScripts();
+                    }
+                });
+            });
+
+            if (modificationApplied) {
+                console.log('[Paywall Buster & Network Blocker] Modifications applied via MutationObserver.');
+            }
+        });
+
+        observer.observe(document.body, {
+            childList: true,
+            subtree: true
+        });
+
+        console.log('[Paywall Buster & Network Blocker] MutationObserver set up to monitor DOM changes.');
+    }
+
+    /**
+     * Initializes the userscript by applying modifications, blocking network requests,
+     * removing existing blocked scripts, and setting up the MutationObserver.
      */
     function init() {
-        applyModifications();
-        injectNetworkInterceptors();
-
-        // Check if modifications are already applied, if not set up the observer
-        const modificationsApplied = hidePaywall() || enableScrolling();
-        if (!modificationsApplied) {
-            console.log('[WA Today Paywall Buster] Initial modifications not applied. Setting up MutationObserver.');
-            setupMutationObserver();
-        } else {
-            console.log('[WA Today Paywall Buster] Initial modifications applied successfully.');
-        }
+        addCustomStyles();
+        hidePaywalls();
+        enableScrolling();
+        blockNetworkRequests();
+        removeBlockedScripts();
+        setupMutationObserver();
     }
 
     // Initialize the script
