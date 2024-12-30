@@ -1,7 +1,7 @@
-#UNIVERSAL Paywall Blocker
+# UNIVERSAL Paywall Blocker  
 (No longer just waToday!!)
 
-Firstly, These paywalls seem to change how they generate them, and what they hide behind then, quite often - so it might just not work one day.
+Firstly, these paywalls seem to change how they generate them, and what they hide behind then, quite often - so it might just not work one day.
 
 I've been made aware of websites you can go to, one example is [12ft](https://12ft.io) and to be fair, it works really well. My tool, though, doesn't fully disable Javascript like theirs. Neither is bad, just as I said, no single tool does all jobs. You need to decide what is best for what you need at that time. (Just to be VERY clear, I have not looked at their code, I do not know how they do what they do, so if there are ANY similarities between the two in how they are written it is purely coincidental!)
 
@@ -20,7 +20,7 @@ A userscript designed to hide the paywall prompt and enable scrolling on **most*
    - **Greasemonkey:** Available for [Firefox](https://addons.mozilla.org/en-US/firefox/addon/greasemonkey/).
 
 2. **Install the Userscript:**
-   - Navigate to the [waTodayPaywallBlocker.user.js](https://github.com/TurbulentGoat/waTodayPaywallBlocker) file in this repository.
+   - Navigate to the [Paywall_BeGone.user.js](https://github.com/TurbulentGoat/universalPaywallBlocker) file in this repository.
    - Click on the **"Raw"** button to view the raw script.
    - Your userscript manager should prompt you to install the script. Follow the on-screen instructions.
 
